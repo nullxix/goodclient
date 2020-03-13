@@ -1,14 +1,26 @@
 const _inner46f002m = {
-    _accepts: [],
-    _declines: [],
+    _onAccepts: [],
+    _onUndeclareds: [],
+    _onOptIns: [],
     _goodCookieURL: 'http://localhost:5555/verify',
     _bounceURL: 'http://localhost:5555/verify/bounce',
-    _optURL: 'http://localhost:5555/opt/in/bounce',
-    _runAccepts: function(args = undefined){
-        this._accepts.forEach( accept => accept(args))
+    _optURL: 'http://localhost:1234',
+    _listenForPost: function(){
+        window.onmessage = event => {
+            if(event.data === 'OUR-GOOD-USER-HAS-ACCEPTED-ALL-COOKIES-ON-ALL-WEBSITES'){
+                this._runOnOptIns()
+                this._runOnAccepts()
+            }
+        }
     },
-    _runDeclines: function(args = undefined) {
-        this._declines.forEach(decline => decline(args))
+    _runOnOptIns: function(args = undefined){
+        this._onOptIns.forEach(onOptIn => onOptIn(args))
+    },
+    _runOnAccepts: function(args = undefined){
+        this._onAccepts.forEach(onAccept => onAccept(args))
+    },
+    _runOnUndeclareds: function(args = undefined) {
+        this._onUndeclareds.forEach(onUndeclared => onUndeclared(args))
     }
 }
 const goodClient = {
@@ -20,29 +32,37 @@ const goodClient = {
                 if(request.readyState === XMLHttpRequest.DONE){
                             let {'user-accepts-all-cookies-on-all-sites': accepted} = JSON.parse(request.responseText)
                             if(accepted){
-                                _inner46f002m._runAccepts()
+                                _inner46f002m._runOnAccepts()
                             } else {
-                                _inner46f002m._runDeclines()
+                                _inner46f002m._runOnUndeclareds()
                             }
                         }
                     }
             request.send()
         })
     },
-    verifyBounce: (acceptURL, declineURL) => {
+    verifyBounce: (acceptURL, UndeclaredURL) => {
         const   accept = encodeURI(acceptURL),
-                decline = encodeURI(declineURL)
-        window.location.replace(`${_inner46f002m._bounceURL}?acceptURL=${accept}?declineURL=${declineURL}`)
+                undeclared = encodeURI(UndeclaredURL)
+        window.location.replace(`${_inner46f002m._bounceURL}?acceptURL=${accept}?undeclaredURL=${undeclaredURL}`)
     },
-    optIn: (acceptURL, declineURL) => {
-        const   accept = encodeURI(acceptURL),
-                decline = encodeURI(declineURL)
-        window.open(`${_inner46f002m._optURL}?acceptURL=${accept}?declineURL=${declineURL}`)
+    optIn: (senderDomain) => {
+        const  domain = encodeURI(senderDomain)
+        _inner46f002m._listenForPost()
+        let _optWindow = window.open(`${_inner46f002m._optURL}?senderDomain=${domain}}`)
+        _optWindow.postMessage('the-secret-word-is-pastamarmalade')
     },
-    onDecline: (...args) => {
-        args && args.forEach(arg => _inner46f002m._declines.push(arg))
+    onUndeclared: (...args) => {
+        args && args.forEach(arg => _inner46f002m._onUndeclareds.push(arg))
     },
     onAccept: (...args) => {
-        args && args.forEach(arg => _inner46f002m._accepts.push(arg))
+        args && args.forEach(arg => _inner46f002m._onAccepts.push(arg))
+    },
+    onOptIn: (...args) => {
+        args && args.forEach(arg => _inner46f002m._onOptIns.push(arg))
+    },
+    config: (options) => {
+        //do stuff based on options
+        return options
     }
 }

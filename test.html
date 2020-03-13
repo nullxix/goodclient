@@ -1,14 +1,16 @@
 <body>
     Hey Planet!
+
+    <button
+        onclick='javascript:goodClient.optIn()'    
+    >Go to another website</button>
     <script src='./goodclient.js'></script>
     <script>
         goodClient.onAccept(() => {
             console.log('WE IN')
         })
-        goodClient.onDecline(() => {
+        goodClient.onUndeclared(() => {
             console.log('WE OUT')
         })
-        goodClient.verify()
-        goodClient.optIn('http://google.com', 'http://wikipedia.org')
     </script>
 </body>
