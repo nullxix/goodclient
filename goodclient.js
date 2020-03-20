@@ -2,9 +2,9 @@ const _inner46f002m = {
     _onAccepts: [],
     _onUndeclareds: [],
     _onOptIns: [],
-    _goodCookieURL: 'http://localhost:5555/verify',
-    _bounceURL: 'http://localhost:5555/verify/bounce',
-    _optURL: 'http://localhost:1234',
+    _goodCookieURL: 'https://nick.pink/goodcookie/verify',
+    _bounceURL: 'https://nick.pink/verify/bounce',
+    _optURL: 'https://nick.pink/goodcookie',
     _listenForPost: function(){
         window.onmessage = event => {
             if(event.data === 'OUR-GOOD-USER-HAS-ACCEPTED-ALL-COOKIES-ON-ALL-WEBSITES'){
@@ -28,6 +28,7 @@ const goodClient = {
         return new Promise((fulfill, reject) => {
             const request = new XMLHttpRequest()
             request.open('get', _inner46f002m._goodCookieURL)
+            request.withCredentials = true
             request.onreadystatechange = () => {
                 if(request.readyState === XMLHttpRequest.DONE){
                             let {'user-accepts-all-cookies-on-all-sites': accepted} = JSON.parse(request.responseText)
